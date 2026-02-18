@@ -1,59 +1,63 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-<title>Gas Monitor</title>
+<title>Gas Dashboard</title>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 
 <body>
 
-<h2>Add Parameter</h2>
+<h2>CONFIGURATION</h2>
 
 Name:
-<input id="name"><br><br>
-
+<input id="name">
 Register:
-<input id="reg"><br><br>
+<input id="reg">
+<button onclick="add()">Add</button>
 
-<button onclick="send()">Configure</button>
+<h2>LIVE VALUES</h2>
 
-<h2>Values</h2>
-<div id="values"></div>
+<table border="1" id="tbl">
+<tr><th>Parameter</th><th>Value</th></tr>
+</table>
 
 <script>
 
+let values={};
+
 const client=mqtt.connect(
 "wss://9623f16bf00e4cc69f0010261f43bf86.s1.eu.hivemq.cloud:8884/mqtt",
-{
- username:"RITESH",
- password:"Ritesh@123"
-});
+{username:"RITESH",password:"Ritesh@123"});
 
 client.on("connect",()=>{
- console.log("Web Connected");
  client.subscribe("data/#");
 });
 
-function send(){
- let n=document.getElementById("name").value;
- let r=document.getElementById("reg").value;
+function add(){
+ let n=name.value;
+ let r=reg.value;
 
  client.publish("config/"+n,r);
- alert("Sent!");
+
+ let row=tbl.insertRow();
+ row.id="row_"+n;
+ row.insertCell(0).innerHTML=n;
+ row.insertCell(1).innerHTML="--";
 }
 
-client.on("message",(topic,msg)=>{
+client.on("message",(t,m)=>{
 
- let p=topic.split("/")[1];
- let val=msg.toString();
+ let p=t.split("/")[1];
+ let val=m.toString();
 
- document.getElementById("values").innerHTML=
- "<h3>"+p+" = "+val+"</h3>";
+ let row=document.getElementById("row_"+p);
+
+ if(row){
+   row.cells[1].innerHTML=val;
+ }
 });
 
 </script>
 
 </body>
-
 </html>
