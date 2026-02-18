@@ -1,38 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Gas Monitor</title>
+<title>Live Gas Monitor</title>
 
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
+
 </head>
 
 <body>
 
 <h1>Live Gas Monitor</h1>
+<h2 id="status">Connecting...</h2>
 <h2 id="so2">SO2: --</h2>
 
 <script>
-  const options = {
+
+const client = mqtt.connect(
+  "wss://9623f16bf00e4cc69f0010261f43bf86.s1.eu.hivemq.cloud:8884/mqtt",
+  {
     username: "RITESH",
     password: "Ritesh@123",
-    reconnectPeriod: 1000
-  };
+    protocol: "wss",
+    reconnectPeriod: 1000,
+    connectTimeout: 30 * 1000,
+    clientId: "web_" + Math.random()
+  }
+);
 
-  const client = mqtt.connect(
-    "wss://9623f16bf00e4cc69f0010261f43bf86.s1.eu.hivemq.cloud:8884/mqtt",
-    options
-  );
+client.on("connect", () => {
+  console.log("CONNECTED");
+  document.getElementById("status").innerHTML = "Connected ✅";
+  client.subscribe("plant/so2");
+});
 
-  client.on("connect", () => {
-    console.log("Web MQTT connected");
-    client.subscribe("plant/so2");
-  });
+client.on("message", (topic, message) => {
+  console.log("MSG:", message.toString());
+  document.getElementById("so2").innerHTML =
+    "SO2: " + message.toString();
+});
 
-  client.on("message", (topic, message) => {
-    const value = message.toString();
-    document.getElementById("so2").innerHTML =
-      "SO2: " + value;
-  });
+client.on("error", (err) => {
+  console.log("ERROR:", err);
+});
+
 </script>
 
 </body>
