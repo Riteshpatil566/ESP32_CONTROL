@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+<title>Gas Monitor</title>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 
@@ -9,10 +11,10 @@
 <h2>Add Parameter</h2>
 
 Name:
-<input id="name"><br>
+<input id="name"><br><br>
 
 Register:
-<input id="reg"><br>
+<input id="reg"><br><br>
 
 <button onclick="send()">Configure</button>
 
@@ -20,6 +22,7 @@ Register:
 <div id="values"></div>
 
 <script>
+
 const client=mqtt.connect(
 "wss://9623f16bf00e4cc69f0010261f43bf86.s1.eu.hivemq.cloud:8884/mqtt",
 {
@@ -28,6 +31,7 @@ const client=mqtt.connect(
 });
 
 client.on("connect",()=>{
+ console.log("Web Connected");
  client.subscribe("data/#");
 });
 
@@ -36,14 +40,20 @@ function send(){
  let r=document.getElementById("reg").value;
 
  client.publish("config/"+n,r);
+ alert("Sent!");
 }
 
-client.on("message",(t,m)=>{
- let p=t.split("/")[1];
- document.getElementById("values").innerHTML+=
- "<p>"+p+" = "+m.toString()+"</p>";
+client.on("message",(topic,msg)=>{
+
+ let p=topic.split("/")[1];
+ let val=msg.toString();
+
+ document.getElementById("values").innerHTML=
+ "<h3>"+p+" = "+val+"</h3>";
 });
+
 </script>
 
 </body>
+
 </html>
