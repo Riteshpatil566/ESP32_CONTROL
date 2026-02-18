@@ -1,33 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <title>Live Gas Monitor</title>
+
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 
 <body>
 
-<h2>Live Gas Monitor</h2>
-
-SO2: <span id="so2">--</span>
+<h1>Live Gas Monitor</h1>
+<h2 id="so2">SO2: --</h2>
 
 <script>
+  const options = {
+    username: "RITESH",
+    password: "Ritesh@123",
+    reconnectPeriod: 1000
+  };
 
-const client=mqtt.connect(
-"wss://9623f16bf00e4cc69f0010261f43bf86.s1.eu.hivemq.cloud:8883",
-{
- username:"RITESH",
- password:"Ritesh@123"
-});
+  const client = mqtt.connect(
+    "wss://9623f16bf00e4cc69f0010261f43bf86.s1.eu.hivemq.cloud:8884/mqtt",
+    options
+  );
 
-client.on("connect",()=>{
- client.subscribe("plant/so2");
-});
+  client.on("connect", () => {
+    console.log("Web MQTT connected");
+    client.subscribe("plant/so2");
+  });
 
-client.on("message",(t,m)=>{
- if(t=="plant/so2"){
-   document.getElementById("so2").innerText=m;
- }
-});
+  client.on("message", (topic, message) => {
+    const value = message.toString();
+    document.getElementById("so2").innerHTML =
+      "SO2: " + value;
+  });
 </script>
 
 </body>
