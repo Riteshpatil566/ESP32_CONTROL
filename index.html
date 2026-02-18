@@ -1,28 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 
-<body style="text-align:center;font-family:Arial">
+<body>
 
-<h2>ESP32 Control</h2>
+<h2>Live Gas Monitor</h2>
 
-<button onclick="send('ON')" style="font-size:30px;">ON</button>
-<button onclick="send('OFF')" style="font-size:30px;">OFF</button>
+SO2: <span id="so2">--</span>
 
 <script>
-const client = mqtt.connect(
-'wss://96a2e136b9bf487988313309f34ddc2c.s1.eu.hivemq.cloud:8884/mqtt',
+
+const client=mqtt.connect(
+"wss://9623f16bf00e4cc69f0010261f43bf86.s1.eu.hivemq.cloud:8883",
 {
-username: 'RITESH',
-password: 'Ritesh@123'
+ username:"RITESH",
+ password:"Ritesh@123"
 });
 
-function send(msg){
-  client.publish('esp32/led', msg);
-}
+client.on("connect",()=>{
+ client.subscribe("plant/so2");
+});
+
+client.on("message",(t,m)=>{
+ if(t=="plant/so2"){
+   document.getElementById("so2").innerText=m;
+ }
+});
 </script>
 
 </body>
